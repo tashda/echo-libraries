@@ -18,6 +18,8 @@ Reproducible universal (arm64 + x86_64) macOS builds of the C libraries and tool
 
 ## Layout
 - `scripts/`: `fetch.sh`, one `build-*.sh` per library, `build-all.sh`, `make-frameworks.sh`, `export-headers.sh`, `collect-licenses.sh`, `verify.sh`, `release.sh`, `check-upstream.sh`, `shims/`.
-- `Sources/CLibpq`, `Sources/CMariaDB`: the C modules (headers exported from the build, committed). `Tests/`: load tests.
+- `Sources/CLibpq`, `Sources/CMariaDB`: the C modules (headers exported from the build, committed).
+- `Sources/EchoTLS`, `Sources/EchoKerberos`: Swift (Security.framework, GSS.framework) for what OpenSSL doesn't do on a Mac: Keychain trust bundle, post-handshake trust check, client certificates as PEM files, the Kerberos ticket. Plain Swift, nonisolated; no Echo app code.
+- `Tests/`: load tests (`EchoLibrariesTests`) and `EchoTLSTests` (fixtures made with the system's LibreSSL `openssl` at test time).
 - `Licenses/`: each library's licence (committed).
 - `.downloads/`, `.tools/`, `.work/`, `.stage/`, `Artifacts/`: generated, gitignored.

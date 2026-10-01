@@ -35,7 +35,16 @@ scripts/release.sh 1.2.3     # zips, checksums into Package.swift, tag, GitHub R
 // …
 .product(name: "CLibpq", package: "echo-libraries")     // libpq (postgres-wire)
 .product(name: "CMariaDB", package: "echo-libraries")   // MariaDB Connector/C (mysql-wire)
+.product(name: "EchoTLS", package: "echo-libraries")    // Keychain trust, client certificates
+.product(name: "EchoKerberos", package: "echo-libraries") // the user's Kerberos ticket
 ```
+
+### What OpenSSL doesn't do on a Mac (`EchoTLS`, `EchoKerberos`)
+libpq and MariaDB Connector/C use OpenSSL, which doesn't read the Keychain. Two Swift modules (no C exposed) cover the difference:
+- **`TrustBundle`** writes the CAs this Mac trusts for TLS servers to a PEM file for `sslrootcert` / `MYSQL_OPT_SSL_CA`: the system roots plus admin and user trust settings (company CAs from IT or MDM), minus anything marked "Never Trust". Trust limited to one host or one app is left out.
+- **`ServerTrust`** has macOS evaluate the server's chain again after the handshake, so "Never Trust" and the rest of macOS's TLS policy still apply.
+- **`ClientCertificateFiles`** turns any client certificate the sign-in sheet accepts (PEM, DER, PKCS#1/SEC1/PKCS#8, encrypted keys, `.p12`/`.pfx` including legacy 3DES/RC2 ones) into PEM files OpenSSL reads, in a private folder (0700, files 0600) that goes away with the object. Known gap: a `.p12` exported with an *empty* password can't be opened (Security.framework and OpenSSL compute its MAC differently).
+- **`KerberosTicket.current()`** (`EchoKerberos`) reads the ticket from Apple's GSS.framework, the same cache libpq and Connector/C sign in with.
 
 The binary frameworks (`EchoLibpq`, `EchoMariaDB`, `EchoSSL`, `EchoCrypto`, `EchoZstd`, `EchoLZ4`) come from the GitHub Release named in `Package.swift`, checked against their checksums; Xcode embeds and signs them in the app. The PostgreSQL tools are the release's `PostgresTools.zip`: Echo copies them to `Contents/SharedSupport/PostgresTools/`, where they find the frameworks in `Contents/Frameworks/`.
 

@@ -34,6 +34,8 @@ let package = Package(
     products: [
         .library(name: "CLibpq", targets: ["CLibpq"]),
         .library(name: "CMariaDB", targets: ["CMariaDB"]),
+        .library(name: "EchoTLS", targets: ["EchoTLS"]),
+        .library(name: "EchoKerberos", targets: ["EchoKerberos"]),
     ],
     targets: [
         framework("EchoCrypto"),
@@ -57,6 +59,14 @@ let package = Package(
             publicHeadersPath: "include"
         ),
 
+        // What OpenSSL doesn't do on a Mac: the Keychain's trusted CAs as a PEM bundle, a macOS
+        // check of the server's chain after the handshake, and client certificates in any form the
+        // sign-in sheet accepts as the PEM files OpenSSL reads. Swift only; no C is exposed.
+        .target(name: "EchoTLS", linkerSettings: [.linkedFramework("Security")]),
+        // The user's Kerberos ticket (Apple's GSS.framework), for the sign-in sheet.
+        .target(name: "EchoKerberos", linkerSettings: [.linkedFramework("GSS")]),
+
         .testTarget(name: "EchoLibrariesTests", dependencies: ["CLibpq", "CMariaDB"]),
+        .testTarget(name: "EchoTLSTests", dependencies: ["EchoTLS", "EchoKerberos"]),
     ]
 )
