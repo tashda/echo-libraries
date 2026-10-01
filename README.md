@@ -18,7 +18,26 @@ Every version and source checksum is pinned in [`versions.json`](versions.json).
 scripts/build-all.sh
 ```
 
-That downloads and verifies the sources (`.downloads/`) and CMake (`.tools/`), then builds each library for arm64 and x86_64 into `.stage/<arch>/<library>/`.
+That downloads and verifies the sources (`.downloads/`) and CMake (`.tools/`), then builds each library for arm64 and x86_64 into `.stage/<arch>/<library>/`. Then:
+
+```bash
+scripts/make-frameworks.sh   # universal frameworks + PostgreSQL tools in Artifacts/
+scripts/export-headers.sh    # C headers into Sources/CLibpq and Sources/CMariaDB
+scripts/verify.sh            # architectures, dependencies, compiled-in paths, smoke test
+ECHO_LIBRARIES_LOCAL=1 swift test
+scripts/release.sh 1.2.3     # zips, checksums into Package.swift, tag, GitHub Release
+```
+
+## Using it
+
+```swift
+.package(url: "https://github.com/tashda/echo-libraries", from: "1.0.0"),
+// …
+.product(name: "CLibpq", package: "echo-libraries")     // libpq (postgres-wire)
+.product(name: "CMariaDB", package: "echo-libraries")   // MariaDB Connector/C (mysql-wire)
+```
+
+The binary frameworks (`EchoLibpq`, `EchoMariaDB`, `EchoSSL`, `EchoCrypto`, `EchoZstd`, `EchoLZ4`) come from the GitHub Release named in `Package.swift`, checked against their checksums; Xcode embeds and signs them in the app. The PostgreSQL tools are the release's `PostgresTools.zip`: Echo copies them to `Contents/SharedSupport/PostgresTools/`, where they find the frameworks in `Contents/Frameworks/`.
 
 ### Choices worth knowing
 - **Kerberos uses Apple's GSS.framework** (the system ticket cache that Ticket Viewer and `kinit` use), not a bundled MIT Kerberos. `scripts/shims/gssapi/` routes the GSS-API headers to GSS.framework and stands in for MIT's `gssapi_ext.h`, which only the PostgreSQL server needs.

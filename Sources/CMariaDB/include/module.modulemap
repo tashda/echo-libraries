@@ -1,0 +1,4 @@
+module CMariaDB {
+    header "CMariaDB.h"
+    export *
+}
