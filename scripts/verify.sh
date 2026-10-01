@@ -23,8 +23,9 @@ for bin in "${binaries[@]}"; do
     case "$dep" in /usr/lib/*|/System/Library/*|@rpath/Echo*.framework/Versions/A/Echo*) ;; *) fail "$bin depends on $dep" ;; esac
   done
   ids="$(otool -L "$bin" | grep -v ':$' | awk '{print $1}')"
-  if strings -a "$bin" | grep -E "/Users/|/opt/homebrew|/usr/local/(opt|Cellar)" | grep -qvxF "$ids"; then
-    fail "$bin contains a build-machine or Homebrew path"
+  leaked="$(strings -a "$bin" | grep -E "/Users/|/opt/homebrew|/usr/local/(opt|Cellar)" | grep -vxF "$ids" | sort -u | head -5 || true)"
+  if [ -n "$leaked" ]; then
+    fail "$bin contains a build-machine or Homebrew path:"$'\n'"$leaked"
   fi
   codesign --verify "$bin" 2>/dev/null || fail "$bin signature"
 done
