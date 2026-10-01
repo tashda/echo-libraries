@@ -37,6 +37,9 @@ jobs:
       - name: Verify architectures, dependencies, paths; smoke test (native and Rosetta)
         run: scripts/verify.sh
 
+      - name: Wrap as xcframeworks (what the local Swift package uses)
+        run: scripts/make-xcframeworks.sh
+
       - name: Swift tests against the fresh build
         run: ECHO_LIBRARIES_LOCAL=1 swift test
 
