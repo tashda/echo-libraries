@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build, verify, test
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache source tarballs and CMake
+        uses: actions/cache@v4
+        with:
+          path: |
+            .downloads
+            .tools
+          key: sources-${{ hashFiles('versions.json') }}
+
+      - name: Build every library (arm64 + x86_64)
+        run: scripts/build-all.sh
+
+      - name: Package frameworks and PostgreSQL tools
+        run: scripts/make-frameworks.sh
+
+      - name: Committed headers and licences match the build
+        run: |
+          scripts/export-headers.sh
+          scripts/collect-licenses.sh
+          git diff --exit-code -- Sources Licenses
+
+      - name: Verify architectures, dependencies, paths; smoke test (native and Rosetta)
+        run: scripts/verify.sh
+
+      - name: Swift tests against the fresh build
+        run: ECHO_LIBRARIES_LOCAL=1 swift test
+
+      - name: Swift tests against the published release
+        run: swift test
