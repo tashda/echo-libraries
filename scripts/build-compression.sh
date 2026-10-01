@@ -4,7 +4,9 @@
 . "$(dirname "$0")/common.sh"
 
 for arch in "${ARCHS[@]}"; do
-  cc="clang $(arch_cflags "$arch")"
+  # The padding goes in CC: both makefiles build their own LDFLAGS for the dylib, which a
+  # command-line LDFLAGS would replace.
+  cc="clang $(arch_cflags "$arch") $LINK_PAD"
 
   log "zstd $(version zstd) for $arch"
   src="$(unpack zstd "$arch")"

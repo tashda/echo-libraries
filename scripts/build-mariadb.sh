@@ -17,7 +17,8 @@ for arch in "${ARCHS[@]}"; do
   log "MariaDB Connector/C $(version mariadb-connector-c) for $arch"
   src="$(unpack mariadb-connector-c "$arch")"
   build="$src/_build"
-  prefix="$STAGE/$arch/mariadb"; rm -rf "$prefix"
+  prefix="$STAGE/$arch/mariadb"
+  destdir="$WORK/$arch/mariadb-dest"; rm -rf "$destdir"
   ssl="$STAGE/$arch/openssl"; zstd="$STAGE/$arch/zstd"
   plugin_flags=()
   for plugin in "${plugins[@]}"; do plugin_flags+=("-DCLIENT_PLUGIN_$plugin=STATIC"); done
@@ -26,7 +27,9 @@ for arch in "${ARCHS[@]}"; do
     -DCMAKE_OSX_ARCHITECTURES="$arch" \
     -DCMAKE_OSX_DEPLOYMENT_TARGET="$DEPLOYMENT_TARGET" \
     -DCMAKE_OSX_SYSROOT="$SDKROOT" \
-    -DCMAKE_INSTALL_PREFIX="$prefix" \
+    -DCMAKE_SHARED_LINKER_FLAGS="$LINK_PAD" -DCMAKE_EXE_LINKER_FLAGS="$LINK_PAD" \
+    -DCMAKE_C_FLAGS="$PREFIX_MAP" \
+    -DCMAKE_INSTALL_PREFIX="$NEUTRAL_PREFIX/mariadb" \
     -DCMAKE_IGNORE_PREFIX_PATH="/opt/homebrew;/usr/local;/opt/local" \
     -DWITH_SSL=OPENSSL -DOPENSSL_ROOT_DIR="$ssl" -DOPENSSL_USE_STATIC_LIBS=OFF \
     -DWITH_EXTERNAL_ZLIB=ON \
@@ -36,7 +39,9 @@ for arch in "${ARCHS[@]}"; do
     -DCLIENT_PLUGIN_MYSQL_OLD_PASSWORD=OFF \
     "${plugin_flags[@]}" > "$src/configure.log"
   cmake --build "$build" -j"$JOBS" > "$src/build.log"
-  cmake --install "$build" > "$src/install.log"
+  DESTDIR="$destdir" cmake --install "$build" > "$src/install.log"
+  take_staged mariadb "$arch" "$destdir"
+  point_at_stage "$prefix/lib/mariadb" "$arch"
   lib="$(find "$prefix" -name 'libmariadb.3.dylib' | head -1)"
   [ -n "$lib" ] || die "libmariadb.3.dylib not installed"
   lipo -archs "$lib" | grep -qx "$arch" || die "libmariadb is not $arch"

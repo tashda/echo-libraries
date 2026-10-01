@@ -16,17 +16,18 @@ shims="$ROOT/scripts/shims"
 for arch in "${ARCHS[@]}"; do
   log "PostgreSQL $(version postgresql) client for $arch"
   src="$(unpack postgresql "$arch")"
-  prefix="$STAGE/$arch/postgresql"; rm -rf "$prefix"
+  prefix="$STAGE/$arch/postgresql"
+  destdir="$WORK/$arch/postgresql-dest"; rm -rf "$destdir"
   ssl="$STAGE/$arch/openssl"; zstd="$STAGE/$arch/zstd"; lz4="$STAGE/$arch/lz4"
   link="-arch $arch -isysroot $SDKROOT -mmacosx-version-min=$DEPLOYMENT_TARGET"
   (
     cd "$src"
-    ./configure --prefix="$prefix" \
+    ./configure --prefix="$NEUTRAL_PREFIX/postgresql" \
       --with-ssl=openssl --with-gssapi --with-zstd --with-lz4 --with-zlib \
       --with-libedit-preferred --without-icu --disable-nls \
       --with-includes="$shims:$ssl/include:$zstd/include:$lz4/include" \
       --with-libraries="$ssl/lib:$zstd/lib:$lz4/lib" \
-      CC=clang CFLAGS="$(arch_cflags "$arch")" LDFLAGS="$link -framework GSS" \
+      CC=clang CFLAGS="$(arch_cflags "$arch")" LDFLAGS="$link -framework GSS $LINK_PAD" \
       ZSTD_CFLAGS="-I$zstd/include" ZSTD_LIBS="-L$zstd/lib -lzstd" \
       LZ4_CFLAGS="-I$lz4/include" LZ4_LIBS="-L$lz4/lib -llz4" \
       ac_cv_search_gss_store_cred_into="none required" \
@@ -35,9 +36,11 @@ for arch in "${ARCHS[@]}"; do
       make -C "$dir" -j"$JOBS" >> "$src/build.log"
     done
     for dir in src/include src/interfaces/libpq src/bin/pg_dump src/bin/psql; do
-      make -C "$dir" install >> "$src/install.log"
+      make -C "$dir" install DESTDIR="$destdir" >> "$src/install.log"
     done
   )
+  take_staged postgresql "$arch" "$destdir"
+  point_at_stage "$prefix/lib" "$arch"
   for file in lib/libpq.5.dylib bin/pg_dump bin/pg_restore bin/pg_dumpall bin/psql; do
     lipo -archs "$prefix/$file" | grep -qx "$arch" || die "$file is not $arch"
   done

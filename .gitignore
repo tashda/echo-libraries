@@ -7,3 +7,4 @@ Artifacts/
 .swiftpm/
 *.part
 .DS_Store
+.work*.log
