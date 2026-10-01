@@ -1,0 +1,9 @@
+.downloads/
+.tools/
+.work/
+.stage/
+Artifacts/
+.build/
+.swiftpm/
+*.part
+.DS_Store

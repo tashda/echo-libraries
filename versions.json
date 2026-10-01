@@ -1,0 +1,43 @@
+{
+  "deploymentTarget": "26.0",
+  "architectures": ["arm64", "x86_64"],
+  "libraries": {
+    "openssl": {
+      "version": "3.5.9",
+      "url": "https://github.com/openssl/openssl/releases/download/openssl-3.5.9/openssl-3.5.9.tar.gz",
+      "sha256": "603f5602e2eef00d77fbd429d34dcd5822bb301757a1bc9cdb24c670f1eb859a",
+      "license": "Apache-2.0"
+    },
+    "zstd": {
+      "version": "1.5.7",
+      "url": "https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz",
+      "sha256": "eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
+      "license": "BSD-3-Clause"
+    },
+    "lz4": {
+      "version": "1.10.0",
+      "url": "https://github.com/lz4/lz4/releases/download/v1.10.0/lz4-1.10.0.tar.gz",
+      "sha256": "537512904744b35e232912055ccf8ec66d768639ff3abe5788d90d792ec5f48b",
+      "license": "BSD-2-Clause"
+    },
+    "postgresql": {
+      "version": "18.6",
+      "url": "https://ftp.postgresql.org/pub/source/v18.6/postgresql-18.6.tar.bz2",
+      "sha256": "555610c24d53e4316da5b7d3fc25c279d96856d5e0e23ee308c328c5fa881d9f",
+      "license": "PostgreSQL"
+    },
+    "mariadb-connector-c": {
+      "version": "3.4.11",
+      "url": "https://archive.mariadb.org/connector-c-3.4.11/mariadb-connector-c-3.4.11-src.tar.gz",
+      "sha256": "521c0712e9291fa96558df9e2ff431376a3a79329f13751896b694cae12765b4",
+      "license": "LGPL-2.1-or-later"
+    }
+  },
+  "tools": {
+    "cmake": {
+      "version": "4.4.3",
+      "url": "https://github.com/Kitware/CMake/releases/download/v4.4.3/cmake-4.4.3-macos-universal.tar.gz",
+      "sha256": "0c5d65251c14cc884bfa16bdbed3c263ce5bffe2e21c0d0d00962cb0610464fa"
+    }
+  }
+}
