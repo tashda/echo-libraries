@@ -5,12 +5,12 @@ import PackageDescription
 // The release whose zips the binary targets download. scripts/release.sh rewrites these two values.
 let release = "1.0.0"
 let checksums: [String: String] = [
-    "EchoCrypto": "2d142837726647073bd64546081ed2c617ab064c212b71efa1e1398634bc4f53",
-    "EchoLZ4": "5388840524513f8a4559744d6fa48b1f97baa9226d5ed1e945ccf550589f4cfa",
-    "EchoLibpq": "641b11cd687fed7dde45640f60ed4668332321e57fedd2cd72fa23027fd3b8f0",
-    "EchoMariaDB": "72a857d01be0bf32c7b529b6376f6bc81d35d7c819fa85b57e03f832b95c4ddc",
-    "EchoSSL": "0c048618a47b3e927bdacfcb1671806864f349022cee3de5d3217e2834a9ffb2",
-    "EchoZstd": "c459f01f8dbc7bd6c86652731620259919d9e5f3c780771787f4a844fbad3c95",
+    "EchoCrypto": "b8f1140b51618a0bfdab21d12b85d2d9a02badf430a7bba45d897641ff15aa6c",
+    "EchoLZ4": "58c057f5ffbc562b1c0729f7f8503723b107700ac6e488c1fa0f6d42713c88b2",
+    "EchoLibpq": "5eb3c3242ab24fb3c4ba211b5757e0f924a9bffc02dbcb4a6dc410cb3cbcbf0c",
+    "EchoMariaDB": "eac22e341bbc900f1d9e6680816a2a50037baa14eab0377aca84f866b1546380",
+    "EchoSSL": "5e15f34cd37eb5f98c76bd2a44d53deae46f758dcbeb7ffc12dde321f497bd38",
+    "EchoZstd": "b3f30eca238e506304862f83b0ab6226c4eaded40405052e99bfd2226e03bfc2",
 ]
 
 /// `ECHO_LIBRARIES_LOCAL=1` uses the frameworks just built in Artifacts/xcframeworks instead of the
